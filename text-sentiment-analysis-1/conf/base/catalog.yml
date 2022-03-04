@@ -9,17 +9,20 @@ gold_standard:
   filepath: data/01_raw/gold_standard.csv
   layer: raw
 
-# labelled_data:
-#   type: pandas.GenericDataSet
-#   filepath: data/01_raw/labelled_data.xml
-#   layer: raw
+labelled_data:
+  type: text.TextDataSet
+  filepath: data/01_raw/labelled_data.xml
+  layer: raw
+  # file_format: xml
 
-# testing_data:
-#   type: pandas.GenericDataSet
-#   filepath: data/01_raw/testing_data.xml
-#   layer: raw
+testing_data:
+  type: text.TextDataSet
+  filepath: data/01_raw/testing_data.xml
+  layer: raw
+  # file_format: xml
 
-# unlabelled_data:
-#   type: pandas.GenericDataSet
-#   filepath: data/01_raw/unlabelled_data.xml
-#   layer: raw
+unlabelled_data:
+  type: text.TextDataSet
+  filepath: data/01_raw/unlabelled_data.xml
+  layer: raw
+  # file_format: xml
