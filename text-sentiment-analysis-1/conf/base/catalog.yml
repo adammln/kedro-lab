@@ -2,3 +2,24 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
+
+
+gold_standard:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/gold_standard.csv
+  layer: raw
+
+# labelled_data:
+#   type: pandas.GenericDataSet
+#   filepath: data/01_raw/labelled_data.xml
+#   layer: raw
+
+# testing_data:
+#   type: pandas.GenericDataSet
+#   filepath: data/01_raw/testing_data.xml
+#   layer: raw
+
+# unlabelled_data:
+#   type: pandas.GenericDataSet
+#   filepath: data/01_raw/unlabelled_data.xml
+#   layer: raw
