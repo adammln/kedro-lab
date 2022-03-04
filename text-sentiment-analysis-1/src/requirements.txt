@@ -164,11 +164,13 @@ jupyterlab-server==2.10.3
     # via jupyterlab
 jupyterlab-widgets==1.0.2
     # via ipywidgets
-kedro[pandas.csvdataset]==0.17.7
+kedro[pandas.csvdataset,pandas.genericdataset]==0.17.7
     # via
     #   -r /home/adamln/Dev/lab/kedro-lab/text-sentiment-analysis-1/src/requirements.in
     #   kedro-telemetry
 kedro-telemetry==0.1.3
+    # via -r /home/adamln/Dev/lab/kedro-lab/text-sentiment-analysis-1/src/requirements.in
+lxml==4.8.0
     # via -r /home/adamln/Dev/lab/kedro-lab/text-sentiment-analysis-1/src/requirements.in
 markupsafe==2.1.0
     # via jinja2
