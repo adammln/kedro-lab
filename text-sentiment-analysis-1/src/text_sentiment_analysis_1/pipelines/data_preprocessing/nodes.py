@@ -4,21 +4,11 @@ generated using Kedro 0.17.7
 """
 import pandas as pd
 import xml.etree.ElementTree as ET
+from lxml import etree
 
-def _replace_special_characters(x: str) -> str:
-    # TODO: create more general special characters handler
-    x = x.replace("&", "&amp;")
-    x =  x.replace("<3", "♥")
-    x = x.replace("<apek>", "apek")
-    x = x.replace(">.<", "^^")
-    x = x.replace("<yang kayaknya>", "yang kayaknya")
-    x = x.replace("<yang mirip>", "yang mirip")
-    x = x.replace("< .", "")
-    x = x.replace(":\"\"<", ":(")
-    return x
-
-def _load_xml_tree_from_text(x: str) -> ET.ElementTree:
-    return ET.ElementTree(ET.fromstring(x))
+def _load_xml_tree_from_text(content: str) -> ET.ElementTree:
+    parser = etree.XMLParser(recover=True) # recover=True -> to skip broken format/characters
+    return ET.ElementTree(ET.fromstring(content, parser=parser))
 
 def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFrame:
     root = tree.getroot()
@@ -92,9 +82,7 @@ def preprocess_labelled_data(xml_content: str) -> pd.DataFrame:
         - special characters replacement
     """
     # TODO: create advanced text preprocessing for text review column
-
-    content = _replace_special_characters(xml_content)
-    tree = _load_xml_tree_from_text(content)
+    tree = _load_xml_tree_from_text(xml_content)
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
     return dataframe
 
