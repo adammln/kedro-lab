@@ -91,6 +91,8 @@ def preprocess_labelled_data(xml_content: str) -> pd.DataFrame:
         Preprocessed data, with:
         - special characters replacement
     """
+    # TODO: create advanced text preprocessing for text review column
+
     content = _replace_special_characters(xml_content)
     tree = _load_xml_tree_from_text(content)
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
