@@ -164,7 +164,7 @@ jupyterlab-server==2.10.3
     # via jupyterlab
 jupyterlab-widgets==1.0.2
     # via ipywidgets
-kedro[pandas.csvdataset,pandas.genericdataset]==0.17.7
+kedro[pandas.csvdataset,pandas.genericdataset,pandas.parquetdataset]==0.17.7
     # via
     #   -r /home/adamln/Dev/lab/kedro-lab/text-sentiment-analysis-1/src/requirements.in
     #   kedro-telemetry
@@ -216,7 +216,9 @@ notebook==6.4.8
 notebook-shim==0.1.0
     # via nbclassic
 numpy==1.22.2
-    # via pandas
+    # via
+    #   pandas
+    #   pyarrow
 packaging==21.3
     # via
     #   bleach
@@ -261,6 +263,8 @@ ptyprocess==0.7.0
     #   terminado
 py==1.11.0
     # via pytest
+pyarrow==6.0.1
+    # via kedro
 pycodestyle==2.7.0
     # via flake8
 pycparser==2.21
