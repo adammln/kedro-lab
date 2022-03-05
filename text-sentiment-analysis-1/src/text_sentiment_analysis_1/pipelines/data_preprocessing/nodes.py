@@ -88,7 +88,7 @@ def _normalize_text_column(x: pd.Series) -> pd.Series:
     x = x.apply(_normalize_text)
     return x
 
-def preprocess_labelled_data(xml_content: str) -> pd.DataFrame:
+def load_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     """Preprocess the data for labelled_data
     
     Args:
@@ -98,9 +98,9 @@ def preprocess_labelled_data(xml_content: str) -> pd.DataFrame:
         Preprocessed data, with:
         - special characters replacement
     """
-    # TODO: create advanced text preprocessing for text review column
     tree = _load_xml_tree_from_text(xml_content)
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
     return dataframe
 
-
+# TODO: use pre-processing/text normalization
+#       for "converted_labelled_data"
