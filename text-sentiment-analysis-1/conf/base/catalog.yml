@@ -34,5 +34,5 @@ converted_labelled_data:
 
 preprocessed_labelled_data:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/prepro
+  filepath: data/03_primary/preprocessed_labelled_data.pq
   layer: primary

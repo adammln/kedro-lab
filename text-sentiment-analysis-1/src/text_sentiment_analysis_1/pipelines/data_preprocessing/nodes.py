@@ -89,14 +89,14 @@ def _normalize_text_column(x: pd.Series) -> pd.Series:
     return x
 
 def load_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
-    """Preprocess the data for labelled_data
+    """Load XML file of labelled data and convert to pandas Dataframe
     
     Args:
         xml_content: full content of xml file represented in string
 
     Returns:
-        Preprocessed data, with:
-        - special characters replacement
+        Content of xml file represented in pandas dataframe
+        with renamed column
     """
     tree = _load_xml_tree_from_text(xml_content)
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
@@ -104,3 +104,17 @@ def load_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
 
 # TODO: use pre-processing/text normalization
 #       for "converted_labelled_data"
+
+def preprocess_labelled_data(labelled_data: pd.DataFrame) -> pd.DataFrame:
+    """Preprocess text data of reviews in labelled_data dataframe 
+    
+    Args:
+        labelled_data: customer reviews data 
+        accompanied with sentiment & aspect labels
+
+    Returns:
+        same data structure of labelled_data 
+        but with review the text in the normalized form
+    """
+    labelled_data["text"] = _normalize_text_column(labelled_data["text"])
+    return labelled_data
