@@ -26,3 +26,8 @@ unlabelled_data:
   filepath: data/01_raw/unlabelled_data.xml
   layer: raw
   # file_format: xml
+
+preprocessed_labelled_data:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/preprocessed_labelled_data.pq
+  layer: intermediate
