@@ -8,7 +8,7 @@ import pandas as pd
 import re
 import xml.etree.ElementTree as ET
 
-def _load_xml_tree_from_text(content: str) -> ET.ElementTree:
+def _extract_xml_tree_from_text(content: str) -> ET.ElementTree:
     parser = etree.XMLParser(recover=True) # recover=T -> skip broken form
     return ET.ElementTree(ET.fromstring(content, parser=parser))
 
@@ -64,8 +64,9 @@ def _normalize_text_column(x: pd.Series) -> pd.Series:
     x = x.apply(_normalize_text)
     return x
 
-def load_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
-    """Load XML file of labelled data and convert to pandas Dataframe
+def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
+    """ Extract content of XML file of labelled data 
+        and convert to pandas Dataframe
     
     Args:
         xml_content: full content of xml file represented in string
@@ -74,12 +75,9 @@ def load_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
         Content of xml file represented in pandas dataframe
         with renamed column
     """
-    tree = _load_xml_tree_from_text(xml_content)
+    tree = _extract_xml_tree_from_text(xml_content)
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
     return dataframe
-
-# TODO: use pre-processing/text normalization
-#       for "converted_labelled_data"
 
 def preprocess_labelled_data(labelled_data: pd.DataFrame) -> pd.DataFrame:
     """Preprocess text data of reviews in labelled_data dataframe 
