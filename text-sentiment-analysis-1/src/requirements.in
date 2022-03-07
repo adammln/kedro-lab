@@ -10,6 +10,7 @@ jupyterlab~=3.0
 kedro[pandas.CSVDataSet, pandas.GenericDataSet, pandas.ParquetDataSet]==0.17.7
 kedro-telemetry~=0.1.0
 lxml~=4.8.0
+nltk~=3.7
 nbstripout~=0.4
 pytest-cov~=3.0
 pytest-mock>=1.7.1, <2.0

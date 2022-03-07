@@ -3,7 +3,6 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
 
-
 gold_standard:
   type: pandas.CSVDataSet
   filepath: data/01_raw/gold_standard.csv
@@ -26,6 +25,11 @@ unlabelled_data:
   filepath: data/01_raw/unlabelled_data.xml
   layer: raw
   # file_format: xml
+
+stopwords_custom:
+  type: text.TextDataSet
+  filepath: data/02_intermediate/tools/stopwords_custom.txt
+  layer: intermediate
 
 converted_labelled_data:
   type: pandas.ParquetDataSet
