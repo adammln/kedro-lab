@@ -31,12 +31,12 @@ stopwords_custom:
   filepath: data/02_intermediate/tools/stopwords_custom.txt
   layer: intermediate
 
-converted_labelled_data:
-  type: pandas.ParquetDataSet
-  filepath: data/02_intermediate/converted_labelled_data.pq
-  layer: intermediate
-
 preprocessed_labelled_data:
   type: pandas.ParquetDataSet
   filepath: data/03_primary/preprocessed_labelled_data.pq
+  layer: primary
+
+preprocessed_testing_data:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/preprocessed_testing_data.pq
   layer: primary
