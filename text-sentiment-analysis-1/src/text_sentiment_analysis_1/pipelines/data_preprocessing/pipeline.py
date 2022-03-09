@@ -41,7 +41,6 @@ def create_pipeline(**kwargs) -> Pipeline:
             "stopwords_custom",
         ],
         outputs=[
-            "converted_labelled_data", 
             "preprocessed_labelled_data", 
             "preprocessed_testing_data",
         ],
