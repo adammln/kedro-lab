@@ -23,9 +23,10 @@ def _convert_testing_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFram
     rows = []
 
     for node in root:
-        review_id = node.find("index").text
+        review_id = int(node.find("index").text)
         text = node.find("review").text
         row = {"review_id": review_id, "text": text}
+        rows.append(row)
     
     dataframe = pd.DataFrame(rows, columns = columns)
     return dataframe
@@ -40,7 +41,7 @@ def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFra
     rows = []
 
     for node in root:
-        review_id = node.attrib.get("rid")
+        review_id = int(node.attrib.get("rid"))
         review_text = node.find("text").text if node is not None else None
         reviewers = node.findall("aspects")      
         row_payload = {
