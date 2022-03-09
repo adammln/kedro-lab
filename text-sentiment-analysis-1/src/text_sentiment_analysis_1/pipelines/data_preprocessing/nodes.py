@@ -137,29 +137,28 @@ def extract_and_convert_testing_data(xml_content: str) -> pd.DataFrame:
     dataframe = _convert_testing_data_tree_to_dataframe(tree)
     return dataframe
 
-def preprocess_labelled_data(
-        labelled_data: pd.DataFrame,
+def preprocess_text_column(
+        dataframe: pd.DataFrame,
         stopwords_custom: str,
     ) -> pd.DataFrame:
-    """Preprocess text data of reviews in labelled_data dataframe 
+    """Preprocess 'text' column in dataframe 
     
     Args:
-        labelled_data: customer reviews data 
+        dataframe: customer reviews data
         accompanied with sentiment & aspect labels
 
     Returns:
-        same data structure of labelled_data 
-        but with review text in the normalized form.
+        dataframe with preprocessed 'text' column
         preprocessing includes:
         - regular expression
         - stopwords removal
         - custom stopwords removal
         TODO: add lemmatization
     """
-    labelled_data["text"] = _normalize_text_column(labelled_data["text"])
-    labelled_data["text"] = _remove_stopwords_in_text_column(labelled_data["text"])
-    labelled_data["text"] = _remove_custom_stopwords_in_text_column(
-        labelled_data["text"], 
+    dataframe["text"] = _normalize_text_column(dataframe["text"])
+    dataframe["text"] = _remove_stopwords_in_text_column(dataframe["text"])
+    dataframe["text"] = _remove_custom_stopwords_in_text_column(
+        dataframe["text"], 
         stopwords_custom
     )
-    return labelled_data
+    return dataframe
