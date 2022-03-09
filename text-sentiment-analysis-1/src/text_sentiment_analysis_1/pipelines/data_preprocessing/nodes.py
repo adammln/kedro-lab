@@ -191,3 +191,19 @@ def preprocess_gold_standard_labels(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe["service"] = dataframe["service"].apply(_map_label_helper)
     dataframe["ambience"] = dataframe["ambience"].apply(_map_label_helper)
     return dataframe
+
+def create_testing_data_table(
+        reviews: pd.DataFrame,
+        labels: pd.DataFrame,
+    ) -> pd.DataFrame:
+    """ Join testing_data and gold_standard (as labels of testing_data)
+        based on review_id
+
+    """
+    labelled_testing_data = reviews.merge(
+        labels, 
+        left_on="review_id", 
+        right_on="review_id",
+    )
+    testing_data_table = labelled_testing_data.dropna()
+    return testing_data_table
