@@ -166,3 +166,28 @@ def preprocess_text_column(
         stopwords_custom
     )
     return dataframe
+
+def preprocess_gold_standard_labels(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    """
+    dataframe = dataframe.rename(columns={
+        'ID':'review_id', 
+        "FOOD": "food", 
+        "SERVICE":"service", 
+        "AMBIENCE":"ambience", 
+        "PRICE": "price"
+    })
+    label_mapper = {
+        "-": "unknown",
+        "NEGATIVE": "negative",
+        "POSITIVE": "positive",
+    }
+
+    def _map_label_helper(x:str) -> str:
+        return _map_label(x, label_mapper)
+
+    dataframe["food"] = dataframe["food"].apply(_map_label_helper)
+    dataframe["price"] = dataframe["price"].apply(_map_label_helper)
+    dataframe["service"] = dataframe["service"].apply(_map_label_helper)
+    dataframe["ambience"] = dataframe["ambience"].apply(_map_label_helper)
+    return dataframe
