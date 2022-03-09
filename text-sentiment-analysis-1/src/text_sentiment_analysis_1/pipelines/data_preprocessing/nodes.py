@@ -146,6 +146,11 @@ def preprocess_text_column(
         stopwords_custom: str,
     ) -> pd.DataFrame:
     """Preprocess 'text' column in dataframe 
+        includes:
+        - regular expression
+        - stopwords removal
+        - custom stopwords removal
+        TODO: add lemmatization
     
     Args:
         dataframe: customer reviews data
@@ -153,11 +158,6 @@ def preprocess_text_column(
 
     Returns:
         dataframe with preprocessed 'text' column
-        preprocessing includes:
-        - regular expression
-        - stopwords removal
-        - custom stopwords removal
-        TODO: add lemmatization
     """
     dataframe["text"] = _normalize_text_column(dataframe["text"])
     dataframe["text"] = _remove_stopwords_in_text_column(dataframe["text"])
@@ -168,7 +168,17 @@ def preprocess_text_column(
     return dataframe
 
 def preprocess_gold_standard(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """
+    """ Preprocess gold_standard (labels of testing_data)
+        includes: 
+        - column renaming 
+        - label name conversion (with label_mapper)
+
+    Args:
+        dataframe: dataframe of sentiment labels 
+                for all aspects (food, ambience, service, price)
+
+    Returns:
+        preprocessed dataframe
     """
     dataframe = dataframe.rename(columns={
         'ID':'review_id', 
@@ -199,6 +209,13 @@ def create_testing_data_table(
     """ Join testing_data and gold_standard (as labels of testing_data)
         based on review_id
 
+    Args:
+        reviews: dataframe (from testing_data) containing id and review texts
+        labels: dataframe containing sentiment labels for all 4 aspects
+            referencing to 'reviews' (testing_data)
+    
+    Return:
+        complete testing data table containing review text and it's label
     """
     labelled_testing_data = reviews.merge(
         labels, 
