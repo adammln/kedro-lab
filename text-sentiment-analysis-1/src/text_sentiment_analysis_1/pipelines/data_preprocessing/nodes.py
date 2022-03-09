@@ -23,9 +23,10 @@ def _convert_testing_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFram
     rows = []
 
     for node in root:
-        review_id = node.find("index").text
+        review_id = int(node.find("index").text)
         text = node.find("review").text
         row = {"review_id": review_id, "text": text}
+        rows.append(row)
     
     dataframe = pd.DataFrame(rows, columns = columns)
     return dataframe
@@ -40,7 +41,7 @@ def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFra
     rows = []
 
     for node in root:
-        review_id = node.attrib.get("rid")
+        review_id = int(node.attrib.get("rid"))
         review_text = node.find("text").text if node is not None else None
         reviewers = node.findall("aspects")      
         row_payload = {
@@ -107,6 +108,9 @@ def _remove_custom_stopwords_in_text_column(
     data_series = data_series.apply(_sw_removal_helper)
     return data_series
 
+def _map_label(x: str, mapper: dict) -> str:
+    return mapper[x]
+
 def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     """ Extract content of XML file of labelled data 
         and convert to pandas Dataframe
@@ -142,6 +146,11 @@ def preprocess_text_column(
         stopwords_custom: str,
     ) -> pd.DataFrame:
     """Preprocess 'text' column in dataframe 
+        includes:
+        - regular expression
+        - stopwords removal
+        - custom stopwords removal
+        TODO: add lemmatization
     
     Args:
         dataframe: customer reviews data
@@ -149,11 +158,6 @@ def preprocess_text_column(
 
     Returns:
         dataframe with preprocessed 'text' column
-        preprocessing includes:
-        - regular expression
-        - stopwords removal
-        - custom stopwords removal
-        TODO: add lemmatization
     """
     dataframe["text"] = _normalize_text_column(dataframe["text"])
     dataframe["text"] = _remove_stopwords_in_text_column(dataframe["text"])
@@ -162,3 +166,61 @@ def preprocess_text_column(
         stopwords_custom
     )
     return dataframe
+
+def preprocess_gold_standard(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """ Preprocess gold_standard (labels of testing_data)
+        includes: 
+        - column renaming 
+        - label name conversion (with label_mapper)
+
+    Args:
+        dataframe: dataframe of sentiment labels 
+                for all aspects (food, ambience, service, price)
+
+    Returns:
+        preprocessed dataframe
+    """
+    dataframe = dataframe.rename(columns={
+        'ID':'review_id', 
+        "FOOD": "food", 
+        "SERVICE":"service", 
+        "AMBIENCE":"ambience", 
+        "PRICE": "price"
+    })
+    label_mapper = {
+        "-": "unknown",
+        "NEGATIVE": "negative",
+        "POSITIVE": "positive",
+    }
+
+    def _map_label_helper(x:str) -> str:
+        return _map_label(x, label_mapper)
+
+    dataframe["food"] = dataframe["food"].apply(_map_label_helper)
+    dataframe["price"] = dataframe["price"].apply(_map_label_helper)
+    dataframe["service"] = dataframe["service"].apply(_map_label_helper)
+    dataframe["ambience"] = dataframe["ambience"].apply(_map_label_helper)
+    return dataframe
+
+def create_testing_data_table(
+        reviews: pd.DataFrame,
+        labels: pd.DataFrame,
+    ) -> pd.DataFrame:
+    """ Join testing_data and gold_standard (as labels of testing_data)
+        based on review_id
+
+    Args:
+        reviews: dataframe (from testing_data) containing id and review texts
+        labels: dataframe containing sentiment labels for all 4 aspects
+            referencing to 'reviews' (testing_data)
+    
+    Return:
+        complete testing data table containing review text and it's label
+    """
+    labelled_testing_data = reviews.merge(
+        labels, 
+        left_on="review_id", 
+        right_on="review_id",
+    )
+    testing_data_table = labelled_testing_data.dropna()
+    return testing_data_table
