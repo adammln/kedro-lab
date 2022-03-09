@@ -54,9 +54,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             "gold_standard"
         ],
         outputs=[
-            "preprocessed_labelled_data", 
-            "preprocessed_testing_data",
-            "testing_data_labels",
+            "preprocessed_labelled_data",
             "testing_data_table",
         ],
     )

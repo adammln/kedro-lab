@@ -36,11 +36,6 @@ preprocessed_labelled_data:
   filepath: data/03_primary/preprocessed_labelled_data.pq
   layer: primary
 
-preprocessed_testing_data:
-  type: pandas.ParquetDataSet
-  filepath: data/03_primary/preprocessed_testing_data.pq
-  layer: primary
-
 testing_data_table:
   type: pandas.ParquetDataSet
   filepath: data/03_primary/testing_data_table.pq
