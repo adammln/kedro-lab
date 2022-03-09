@@ -17,10 +17,23 @@ def _extract_xml_tree_from_text(content: str) -> ET.ElementTree:
     parser = etree.XMLParser(recover=True) # recover=T -> skip broken form
     return ET.ElementTree(ET.fromstring(content, parser=parser))
 
+def _convert_testing_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFrame:
+    root = tree.getroot()
+    columns = ["review_id", "text"]
+    rows = []
+
+    for node in root:
+        review_id = node.find("index").text
+        text = node.find("review").text
+        row = {"review_id": review_id, "text": text}
+    
+    dataframe = pd.DataFrame(rows, columns = columns)
+    return dataframe
+
 def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFrame:
     root = tree.getroot()
     columns = [
-        "rid", "text", 
+        "review_id", "text", 
         "food_0", "price_0", "ambience_0", "service_0", 
         "food_1", "price_1", "ambience_1", "service_1"
     ] 
@@ -31,7 +44,7 @@ def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFra
         review_text = node.find("text").text if node is not None else None
         reviewers = node.findall("aspects")      
         row_payload = {
-            "rid": review_id, "text": review_text,
+            "review_id": review_id, "text": review_text,
             "food_0": "unknown", "price_0": "unknown", "ambience_0": "unknown", "service_0": "unknown",
             "food_1": "unknown", "price_1": "unknown", "ambience_1": "unknown", "service_1": "unknown"
         }
@@ -102,11 +115,26 @@ def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
         xml_content: full content of xml file represented in string
 
     Returns:
-        Content of xml file represented in pandas dataframe
+        Content of xml file of labelled data represented in pandas dataframe
         with renamed column
     """
     tree = _extract_xml_tree_from_text(xml_content)
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
+    return dataframe
+
+def extract_and_convert_testing_data(xml_content: str) -> pd.DataFrame:
+    """ Extract content of XML file of testing data 
+        and convert to pandas Dataframe
+    
+    Args:
+        xml_content: full content of xml file represented in string
+
+    Returns:
+        Content of xml file of testing data represented in pandas dataframe
+        with renamed column
+    """
+    tree = _extract_xml_tree_from_text(xml_content)
+    dataframe = _convert_testing_data_tree_to_dataframe(tree)
     return dataframe
 
 def preprocess_labelled_data(
