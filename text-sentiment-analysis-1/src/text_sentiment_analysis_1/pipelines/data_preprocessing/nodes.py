@@ -108,6 +108,9 @@ def _remove_custom_stopwords_in_text_column(
     data_series = data_series.apply(_sw_removal_helper)
     return data_series
 
+def _map_label(x: str, mapper: dict) -> str:
+    return mapper[x]
+
 def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     """ Extract content of XML file of labelled data 
         and convert to pandas Dataframe
