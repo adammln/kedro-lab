@@ -4,7 +4,7 @@ generated using Kedro 0.17.7
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import extract_and_convert_labelled_data, extract_and_convert_testing_data, preprocess_text_column, preprocess_gold_standard_labels, create_testing_data_table
+from .nodes import extract_and_convert_labelled_data, extract_and_convert_testing_data, preprocess_text_column, preprocess_gold_standard, create_testing_data_table
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
@@ -34,7 +34,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="preprocess_testing_data_node",
             ),
             node(
-                func=preprocess_gold_standard_labels,
+                func=preprocess_gold_standard,
                 inputs="gold_standard",
                 outputs="testing_data_labels",
                 name="preprocess_gold_standard_node",

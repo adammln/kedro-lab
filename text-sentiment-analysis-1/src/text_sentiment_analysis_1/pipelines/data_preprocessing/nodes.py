@@ -167,7 +167,7 @@ def preprocess_text_column(
     )
     return dataframe
 
-def preprocess_gold_standard_labels(dataframe: pd.DataFrame) -> pd.DataFrame:
+def preprocess_gold_standard(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     """
     dataframe = dataframe.rename(columns={
