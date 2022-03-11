@@ -8,14 +8,25 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 import nltk
 import pandas as pd
-import re
+import re, string
 import xml.etree.ElementTree as ET
 
 nltk.download('stopwords')
 _stopwords_dirty = stopwords.words("english") + stopwords.words("indonesian")
 
+def _remove_xml_special_character_on_labelled_data(content: str) -> str:
+    lines = content.split("\n")
+    clean_lines = []
+    chars_to_remove = "<>&\"\'"
+    table = dict((ord(c), None) for c in chars_to_remove)
+    for line in lines:
+        if (line[0] != "<") or line[:2] == "< ":
+            line = line.translate(table)
+        clean_lines.append(line)
+    return "\n".join(clean_lines)
+
 def _extract_xml_tree_from_text(content: str) -> ET.ElementTree:
-    parser = etree.XMLParser(recover=True) # recover=T -> skip broken form
+    parser = etree.XMLParser(recover=False)
     return ET.ElementTree(ET.fromstring(content, parser=parser))
 
 def _convert_testing_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFrame:
@@ -71,7 +82,7 @@ def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFra
 def _normalize_text(x: str) -> str:
     x = x.strip()
     x = x.lower()
-    x = re.sub(r's+', ' ', x) # replace trailing spaces into a single space
+    x = re.sub(r'\s+', ' ', x) # replace trailing spaces into a single space
     x = re.sub(r'[^\w\s]', '', x) # remove punctuations
     x = re.sub(r'\d', '', x) # remove digits
     x = re.sub(r'(.+?)\1+', r'\1\1', x) # replace repeating character (hahaha -> haha, heyyyy -> heyy)
@@ -123,6 +134,7 @@ def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
         Content of xml file of labelled data represented in pandas dataframe
         with renamed column
     """
+    xml_content = _remove_xml_special_character_on_labelled_data(xml_content)
     tree = _extract_xml_tree_from_text(xml_content)
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
     return dataframe
