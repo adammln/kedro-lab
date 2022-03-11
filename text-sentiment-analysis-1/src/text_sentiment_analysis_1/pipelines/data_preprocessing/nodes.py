@@ -81,7 +81,7 @@ def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFra
 def _normalize_text(x: str) -> str:
     x = x.strip()
     x = x.lower()
-    x = re.sub(r's+', ' ', x) # replace trailing spaces into a single space
+    x = re.sub(r'\s+', ' ', x) # replace trailing spaces into a single space
     x = re.sub(r'[^\w\s]', '', x) # remove punctuations
     x = re.sub(r'\d', '', x) # remove digits
     x = re.sub(r'(.+?)\1+', r'\1\1', x) # replace repeating character (hahaha -> haha, heyyyy -> heyy)
