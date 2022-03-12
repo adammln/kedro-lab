@@ -259,6 +259,15 @@ def _tfidf_fit_transform(vectors: np.ndarray) -> pd.Series:
     features = transformer.fit_transform(vectors)
     return features, transformer
 
+def _extract_n_gram_tfidf_test_data(
+        texts: pd.Series, 
+        vectorizer: CountVectorizer, 
+        tfidf_transformer: TfidfTransformer
+    ) -> np.matrix, np.matrix:
+    tf_features = vectorizer.transform(np.array(texts)).todense()
+    tfidf_features = tfidf_transformer.transform(tf_features)
+    return tf_features, tfidf_features
+
 def _extract_word2vec(texts: pd.Series) -> pd.Series:
     # TODO: create Word2Vec feature extraction
     """ Extract word embeddings feature using Word2Vec
