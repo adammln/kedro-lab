@@ -238,21 +238,22 @@ def create_testing_data_table(
     testing_data_table = labelled_testing_data.dropna()
     return testing_data_table
 
-def _extract_ngrams(texts: pd.Series) -> 
+def _n_gram_fit_transform(texts: pd.Series) -> 
         np.matrix, 
         np.ndarray,
         CountVectorizer
     :
-    """ Extract N-Gram features
+    """ Train Vectorizer & Extract N-Gram features on training data
         with N ranging from 1-3
     """
     vectorizer = CountVectorizer(ngram_range=(1,3), max_features=5000)
-    features = vectorizer.fit_transform(np.array(texts)).todense() # Train vectorizer. TODO: Create func for test data
+    features = vectorizer.fit_transform(np.array(texts)).todense() # Train vectorizer
     feature_names = vectorizer.get_feature_names_out()
     return features, vectorizer
 
-def _extract_tf_idfs(vectors: np.ndarray) -> pd.Series:
-    """ Extract TF-IDF (Term Frequency — Inverse Document Frequency)
+def _tfidf_fit_transform(vectors: np.ndarray) -> pd.Series:
+    """ Train TF-IDF (Term Frequency — Inverse Document Frequency) 
+        Transformer & Extract TF-IDF features on training data
     """
     transformer = TfidfTransformer()
     features = transformer.fit_transform(vectors)
