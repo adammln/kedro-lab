@@ -4,7 +4,7 @@ generated using Kedro 0.17.7
 """
 from lxml import etree
 from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 import nltk
 import pandas as pd
@@ -238,20 +238,25 @@ def create_testing_data_table(
     testing_data_table = labelled_testing_data.dropna()
     return testing_data_table
 
-def _extract_ngrams(texts: pd.Series) -> pd.Series, np.ndarray:
+def _extract_ngrams(texts: pd.Series) -> 
+        np.matrix, 
+        np.ndarray,
+        CountVectorizer
+    :
     """ Extract N-Gram features
         with N ranging from 1-3
     """
     vectorizer = CountVectorizer(ngram_range=(1,3), max_features=5000)
-    features = vectorizer.fit_transform(np.array(texts)).todense()
-    feature_names = vectorizer.get_feature_names()
-    return texts, feature_names
+    features = vectorizer.fit_transform(np.array(texts)).todense() # Train vectorizer. TODO: Create func for test data
+    feature_names = vectorizer.get_feature_names_out()
+    return features, vectorizer
 
-def _extract_tf_idfs(texts: pd.Series) -> pd.Series:
-    # TODO: create TF-IDF feature extraction
+def _extract_tf_idfs(vectors: np.ndarray) -> pd.Series:
     """ Extract TF-IDF (Term Frequency — Inverse Document Frequency)
     """
-    return texts
+    transformer = TfidfTransformer()
+    features = transformer.fit_transform(vectors)
+    return features, transformer
 
 def _extract_word2vec(texts: pd.Series) -> pd.Series:
     # TODO: create Word2Vec feature extraction
