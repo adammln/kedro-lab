@@ -40,3 +40,33 @@ testing_data_table:
   type: pandas.ParquetDataSet
   filepath: data/03_primary/testing_data_table.pq
   layer: primary
+
+feature_tf_train:
+  type: json.JSONDataSet
+  filepath: data/04_feature/feature_tf_train.json
+  layer: feature
+
+feature_tf_idf_train:
+  type: json.JSONDataSet
+  filepath: data/04_feature/feature_tf_idf_train.json
+  layer: feature
+
+feature_tf_test:
+  type: json.JSONDataSet
+  filepath: data/04_feature/feature_tf_test.json
+  layer: feature
+
+feature_tf_idf_test:
+  type: json.JSONDataSet
+  filepath: data/04_feature/feature_tf_idf_test.json
+  layer: feature
+
+count_vectorizer:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/count_vectorizer.pkl
+  layer: models
+
+tfidf_transformer:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/tfidf_transformer.pkl
+  layer: models
