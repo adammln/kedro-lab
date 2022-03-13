@@ -239,7 +239,7 @@ def create_testing_data_table(
     return testing_data_table
 
 def _n_gram_fit_transform(texts: pd.Series) -> 
-        np.matrix, 
+        np.ndarray, 
         np.ndarray,
         CountVectorizer
     :
@@ -247,24 +247,24 @@ def _n_gram_fit_transform(texts: pd.Series) ->
         with N ranging from 1-3
     """
     vectorizer = CountVectorizer(ngram_range=(1,3), max_features=5000)
-    features = vectorizer.fit_transform(np.array(texts)).todense() # Train vectorizer
+    features = np.asarray(vectorizer.fit_transform(np.array(texts)).todense()) # Train vectorizer
     feature_names = vectorizer.get_feature_names_out()
     return features, vectorizer
 
-def _tfidf_fit_transform(vectors: np.ndarray) -> pd.Series:
+def _tfidf_fit_transform(vectors: np.ndarray) -> np.ndarray, TfidfTransformer:
     """ Train TF-IDF (Term Frequency — Inverse Document Frequency) 
         Transformer & Extract TF-IDF features on training data
     """
     transformer = TfidfTransformer()
-    features = transformer.fit_transform(vectors)
+    features = transformer.fit_transform(vectors).toarray()
     return features, transformer
 
 def _extract_n_gram_tfidf_test_data(
         texts: pd.Series, 
         vectorizer: CountVectorizer, 
         tfidf_transformer: TfidfTransformer
-    ) -> np.matrix, np.matrix:
-    tf_features = vectorizer.transform(np.array(texts)).todense()
+    ) -> np.ndarray, np.ndarray:
+    tf_features = np.asarray(vectorizer.transform(np.array(texts)).todense())
     tfidf_features = tfidf_transformer.transform(tf_features)
     return tf_features, tfidf_features
 
