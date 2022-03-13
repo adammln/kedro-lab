@@ -4,7 +4,7 @@ generated using Kedro 0.17.7
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import extract_and_convert_labelled_data, extract_and_convert_testing_data, preprocess_text_column, preprocess_gold_standard, create_testing_data_table
+from .nodes import extract_and_convert_labelled_data, extract_and_convert_testing_data, preprocess_text_column, preprocess_gold_standard, create_testing_data_table, extract_train_test_features_from_texts
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
@@ -44,6 +44,21 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=["preprocessed_testing_data", "testing_data_labels"],
                 outputs="testing_data_table",
                 name="create_testing_data_table_node",
+            ),
+            node(
+                func=extract_train_test_features_from_texts,
+                inputs=[
+                    "preprocessed_labelled_data", 
+                    "testing_data_table"
+                ],
+                outputs=[
+                    "feature_tf_train",
+                    "feature_tf_idf_train",
+                    "feature_tf_test",
+                    "feature_tf_idf_test",
+                    "count_vectorizer",
+                    "tfidf_transformer"
+                ]
             )
         ],
         namespace="data_preprocessing", 
@@ -56,5 +71,11 @@ def create_pipeline(**kwargs) -> Pipeline:
         outputs=[
             "preprocessed_labelled_data",
             "testing_data_table",
+            "feature_tf_train",
+            "feature_tf_idf_train",
+            "feature_tf_test",
+            "feature_tf_idf_test",
+            "count_vectorizer",
+            "tfidf_transformer"
         ],
     )

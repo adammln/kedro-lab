@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 import nltk
+import numpy as np
 import pandas as pd
 import re, string
 import xml.etree.ElementTree as ET
@@ -238,11 +239,7 @@ def create_testing_data_table(
     testing_data_table = labelled_testing_data.dropna()
     return testing_data_table
 
-def _n_gram_fit_transform(texts: pd.Series) -> 
-        np.ndarray, 
-        np.ndarray,
-        CountVectorizer
-    :
+def _n_gram_fit_transform(texts: pd.Series):
     """ Train Vectorizer & Extract N-Gram features on training data
         with N ranging from 1-3
     """
@@ -251,7 +248,7 @@ def _n_gram_fit_transform(texts: pd.Series) ->
     feature_names = vectorizer.get_feature_names_out()
     return features, vectorizer
 
-def _tfidf_fit_transform(vectors: np.ndarray) -> np.ndarray, TfidfTransformer:
+def _tfidf_fit_transform(vectors: np.ndarray):
     """ Train TF-IDF (Term Frequency — Inverse Document Frequency) 
         Transformer & Extract TF-IDF features on training data
     """
@@ -263,9 +260,9 @@ def _extract_n_gram_tfidf_test_data(
         texts: pd.Series, 
         vectorizer: CountVectorizer, 
         tfidf_transformer: TfidfTransformer
-    ) -> np.ndarray, np.ndarray:
+    ):
     tf_features = np.asarray(vectorizer.transform(np.array(texts)).todense())
-    tfidf_features = tfidf_transformer.transform(tf_features)
+    tfidf_features = tfidf_transformer.transform(tf_features).toarray()
     return tf_features, tfidf_features
 
 def _extract_word2vec(texts: pd.Series) -> pd.Series:
@@ -280,3 +277,33 @@ def _extract_bert(texts: pd.Series) -> pd.Series:
         using Bi-Directional Encoder Representations from Transformer (BERT)
     """
     return texts
+
+def extract_train_test_features_from_texts(
+        train_dataframe: pd.DataFrame,
+        test_dataframe: pd.DataFrame,
+    ):
+    # Generate features from train dataset
+    train_tf_feature, count_vectorizer = _n_gram_fit_transform(train_dataframe["text"])
+    train_tfidf_feature, tfidf_transformer = _tfidf_fit_transform(train_tf_feature)
+    
+    # Reuse vectorizer & transformer to create features from test dataset
+    test_tf_feature, test_tfidf_feature = _extract_n_gram_tfidf_test_data(
+        test_dataframe["text"],
+        count_vectorizer,
+        tfidf_transformer
+    )
+
+    # Save features into dictionaries with review_id mapping (as a key)
+    ## training data
+    train_data_keys = train_dataframe["review_id"]
+    train_tf_feature_out = dict(zip(train_data_keys, train_tf_feature.tolist()))
+    train_tfidf_feature_out = dict(zip(train_data_keys, train_tfidf_feature.tolist()))
+
+    ## testing data
+    test_data_keys = test_dataframe["review_id"]
+    test_tf_feature_out = dict(zip(test_data_keys, test_tf_feature.tolist()))
+    test_tfidf_feature_out = dict(zip(test_data_keys, test_tfidf_feature.tolist()))
+
+    return train_tf_feature_out, train_tfidf_feature_out, test_tf_feature_out, test_tfidf_feature_out, count_vectorizer, tfidf_transformer
+
+
