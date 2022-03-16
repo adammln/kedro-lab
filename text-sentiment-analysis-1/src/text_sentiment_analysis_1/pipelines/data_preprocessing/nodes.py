@@ -221,7 +221,20 @@ def create_unlabelled_data_table(
         testing_data: pd.DataFrame,
         gold_standard: pd.DataFrame,
     ) -> pd.DataFrame:
-    """
+    """ Create unlabelled_data_table 
+        by merging testing_data and unlabelled_data
+        where testing_data rows don't have gold_standard labels
+
+        Args:
+            unlabelled_data: unlabelled customer reviews of restaurants
+                        extracted from unlabelled_data.xml
+            testing_data: unlabelled customer reviews of restaurants 
+                        extracted from testing_data.xml
+            gold_standard: gold_standard labels, for a subset of testing_data (named t1)
+        
+        Returns:
+            a merged dataframe with rows comes from all unlabelled_data 
+            and testing_data excludes t1
     """
     unlabelled_testing_data = testing_data.loc[
         ~testing_data.review_id.isin(gold_standard.review_id)
