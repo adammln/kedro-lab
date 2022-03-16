@@ -26,6 +26,11 @@ unlabelled_data:
   layer: raw
   # file_format: xml
 
+typed_unlabelled_data:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/typed_unlabelled_data.xml
+  layer: intermediate
+
 stopwords_custom:
   type: text.TextDataSet
   filepath: data/02_intermediate/tools/stopwords_custom.txt
