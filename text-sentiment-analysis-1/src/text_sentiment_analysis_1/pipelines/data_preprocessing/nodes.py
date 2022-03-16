@@ -240,6 +240,7 @@ def create_unlabelled_data_table(
         ~testing_data.review_id.isin(gold_standard.review_id)
     ]
     merged_unlabelled_data = pd.concat([unlabelled_data,unlabelled_testing_data])
+    merged_unlabelled_data = merged_unlabelled_data.drop(columns=['review_id'])
     return merged_unlabelled_data
 
 def create_gold_standard_table(
@@ -263,7 +264,22 @@ def create_gold_standard_table(
         right_on="review_id",
     )
     merged = merged.dropna()
+    merged = merged.drop(columns=['review_id'])
     return merged
+
+def create_labelled_data_table(
+        labelled_data: pd.DataFrame,
+    ) -> pd.DataFrame:
+    """ Create labelled_data_table by dropping review_id column
+
+    Args:
+        labelled_data: preprocessed labelled data
+    
+    Return:
+        labelled data table
+    """
+    labelled_data = labelled_data.drop(columns=['review_id'])
+    return labelled_data
 
 def _n_gram_fit_transform(texts: pd.Series):
     """ Train Vectorizer & Extract N-Gram features on training data

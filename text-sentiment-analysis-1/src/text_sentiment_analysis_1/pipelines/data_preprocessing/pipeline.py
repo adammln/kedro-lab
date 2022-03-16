@@ -10,8 +10,9 @@ from .nodes import (
     preprocess_text_column, 
     preprocess_gold_standard, 
     create_gold_standard_table, 
-    extract_train_test_features_from_texts, 
     create_unlabelled_data_table,
+    create_labelled_data_table,
+    extract_train_test_features_from_texts, 
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -38,7 +39,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=preprocess_text_column,
                 inputs=["typed_labelled_data", "stopwords_custom"],
-                outputs="labelled_data_table",
+                outputs="preprocessed_labelled_data",
                 name="preprocess_labelled_data_node",
             ),
             node(
@@ -75,6 +76,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="gold_standard_table",
                 name="create_gold_standard_table_node",
             ),
+            node(
+                func=create_labelled_data_table,
+                inputs="preprocessed_labelled_data",
+                outputs="labelled_data_table",
+                name="create_labelled_data_table_node",
+            )
             # node(
             #     func=extract_train_test_features_from_texts,
             #     inputs=[
