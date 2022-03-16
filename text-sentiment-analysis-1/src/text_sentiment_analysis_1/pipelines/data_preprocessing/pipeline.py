@@ -27,18 +27,24 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="typed_unlabelled_data",
                 name="extract_and_convert_unlabelled_data_node",
             ),
-            # node(
-            #     func=preprocess_text_column,
-            #     inputs=["converted_labelled_data", "stopwords_custom"],
-            #     outputs="preprocessed_labelled_data",
-            #     name="preprocess_labelled_data_node",
-            # ),
-            # node(
-            #     func=preprocess_text_column,
-            #     inputs=["converted_testing_data", "stopwords_custom"],
-            #     outputs="preprocessed_testing_data",
-            #     name="preprocess_testing_data_node",
-            # ),
+            node(
+                func=preprocess_text_column,
+                inputs=["typed_labelled_data", "stopwords_custom"],
+                outputs="preprocessed_labelled_data",
+                name="preprocess_labelled_data_node",
+            ),
+            node(
+                func=preprocess_text_column,
+                inputs=["typed_testing_data", "stopwords_custom"],
+                outputs="preprocessed_testing_data",
+                name="preprocess_testing_data_node",
+            ),
+            node(
+                func=preprocess_text_column,
+                inputs=["typed_unlabelled_data", "stopwords_custom"],
+                outputs="preprocessed_unlabelled_data",
+                name="preprocess_unlabelled_data_node",
+            ),
             # node(
             #     func=preprocess_gold_standard,
             #     inputs="gold_standard",
@@ -72,7 +78,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             "unlabelled_data",
             "labelled_data",
             "testing_data",
-            # "stopwords_custom",
+            "stopwords_custom",
             # "gold_standard"
         ],
         outputs=[
