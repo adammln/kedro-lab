@@ -51,9 +51,14 @@ preprocessed_labelled_data:
   filepath: data/03_primary/preprocessed_labelled_data.pq
   layer: primary
 
-testing_data_table:
+unlabelled_data_table:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/testing_data_table.pq
+  filepath: data/03_primary/unlabelled_data_table.pq
+  layer: primary
+
+gold_standard_table:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/gold_standard_table.pq
   layer: primary
 
 feature_tf_train:
