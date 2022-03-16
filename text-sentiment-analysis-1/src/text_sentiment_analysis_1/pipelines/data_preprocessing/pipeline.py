@@ -38,7 +38,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=preprocess_text_column,
                 inputs=["typed_labelled_data", "stopwords_custom"],
-                outputs="preprocessed_labelled_data",
+                outputs="labelled_data_table",
                 name="preprocess_labelled_data_node",
             ),
             node(
@@ -100,7 +100,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             "gold_standard"
         ],
         outputs=[
-            # "preprocessed_labelled_data",
+            "labelled_data_table",
             "typed_unlabelled_data",
             "typed_labelled_data",
             "typed_testing_data",

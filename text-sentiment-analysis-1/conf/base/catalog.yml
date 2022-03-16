@@ -46,9 +46,9 @@ stopwords_custom:
   filepath: data/02_intermediate/tools/stopwords_custom.txt
   layer: intermediate
 
-preprocessed_labelled_data:
+labelled_data_table:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/preprocessed_labelled_data.pq
+  filepath: data/03_primary/labelled_data_table.pq
   layer: primary
 
 unlabelled_data_table:
