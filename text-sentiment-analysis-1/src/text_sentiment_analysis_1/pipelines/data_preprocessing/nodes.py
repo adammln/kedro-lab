@@ -216,6 +216,19 @@ def preprocess_gold_standard(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe["ambience"] = dataframe["ambience"].apply(_map_label_helper)
     return dataframe
 
+def create_unlabelled_data_table(
+        unlabelled_data: pd.DataFrame,
+        testing_data: pd.DataFrame,
+        gold_standard: pd.DataFrame,
+    ) -> pd.DataFrame:
+    """
+    """
+    unlabelled_testing_data = testing_data.loc[
+        ~testing_data.review_id.isin(gold_standard.review_id)
+    ]
+    merged_unlabelled_data = pd.concat([unlabelled_data,unlabelled_testing_data])
+    return merged_unlabelled_data
+
 def create_testing_data_table(
         reviews: pd.DataFrame,
         labels: pd.DataFrame,
