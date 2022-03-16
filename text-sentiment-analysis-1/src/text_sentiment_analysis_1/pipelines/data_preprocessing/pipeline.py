@@ -4,7 +4,15 @@ generated using Kedro 0.17.7
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import extract_and_convert_labelled_data, extract_and_convert_testing_data, preprocess_text_column, preprocess_gold_standard, create_testing_data_table, extract_train_test_features_from_texts
+from .nodes import (
+    extract_and_convert_labelled_data, 
+    extract_and_convert_testing_data, 
+    preprocess_text_column, 
+    preprocess_gold_standard, 
+    create_gold_standard_table, 
+    extract_train_test_features_from_texts, 
+    create_unlabelled_data_table,
+)
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
@@ -51,12 +59,22 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="gold_standard_labels",
                 name="preprocess_gold_standard_node",
             ),
-            # node(
-            #     func=create_testing_data_table,
-            #     inputs=["preprocessed_testing_data", "testing_data_labels"],
-            #     outputs="testing_data_table",
-            #     name="create_testing_data_table_node",
-            # ),
+            node(
+                func=create_unlabelled_data_table,
+                inputs=[
+                    "preprocessed_unlabelled_data", 
+                    "preprocessed_testing_data",
+                    "gold_standard_labels",
+                ],
+                outputs="unlabelled_data_table",
+                name="create_unlabelled_data_table_node",
+            ),
+            node(
+                func=create_gold_standard_table,
+                inputs=["preprocessed_testing_data", "gold_standard_labels"],
+                outputs="gold_standard_table",
+                name="create_gold_standard_table_node",
+            ),
             # node(
             #     func=extract_train_test_features_from_texts,
             #     inputs=[
@@ -86,7 +104,8 @@ def create_pipeline(**kwargs) -> Pipeline:
             "typed_unlabelled_data",
             "typed_labelled_data",
             "typed_testing_data",
-            # "testing_data_table",
+            "unlabelled_data_table",
+            "gold_standard_table",
             # "converted_testing_data",
             # "feature_tf_train",
             # "feature_tf_idf_train",
