@@ -140,8 +140,8 @@ def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
     return dataframe
 
-def extract_and_convert_testing_data(xml_content: str) -> pd.DataFrame:
-    """ Extract content of XML file of testing data 
+def extract_and_convert_xml_data(xml_content: str) -> pd.DataFrame:
+    """ Extract content of XML file 
         and convert to pandas Dataframe
     
     Args:

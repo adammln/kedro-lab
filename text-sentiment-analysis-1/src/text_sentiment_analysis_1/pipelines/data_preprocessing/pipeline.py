@@ -6,7 +6,7 @@ generated using Kedro 0.17.7
 from kedro.pipeline import Pipeline, node, pipeline
 from .nodes import (
     extract_and_convert_labelled_data, 
-    extract_and_convert_testing_data, 
+    extract_and_convert_xml_data, 
     preprocess_text_column, 
     preprocess_gold_standard, 
     create_gold_standard_table, 
@@ -24,13 +24,13 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name="extract_and_convert_labelled_data_node",
             ),
             node(
-                func=extract_and_convert_testing_data,
+                func=extract_and_convert_xml_data,
                 inputs="testing_data",
                 outputs="typed_testing_data",
                 name="extract_and_convert_testing_data_node",
             ),
             node(
-                func=extract_and_convert_testing_data,
+                func=extract_and_convert_xml_data,
                 inputs="unlabelled_data",
                 outputs="typed_unlabelled_data",
                 name="extract_and_convert_unlabelled_data_node",
