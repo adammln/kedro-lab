@@ -26,19 +26,39 @@ unlabelled_data:
   layer: raw
   # file_format: xml
 
+typed_unlabelled_data:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/typed_unlabelled_data.pq
+  layer: intermediate
+
+typed_testing_data:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/typed_testing_data.pq
+  layer: intermediate
+
+typed_labelled_data:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/typed_labelled_data.pq
+  layer: intermediate
+
 stopwords_custom:
   type: text.TextDataSet
   filepath: data/02_intermediate/tools/stopwords_custom.txt
   layer: intermediate
 
-preprocessed_labelled_data:
+labelled_data_table:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/preprocessed_labelled_data.pq
+  filepath: data/03_primary/labelled_data_table.pq
   layer: primary
 
-testing_data_table:
+unlabelled_data_table:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/testing_data_table.pq
+  filepath: data/03_primary/unlabelled_data_table.pq
+  layer: primary
+
+gold_standard_table:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/gold_standard_table.pq
   layer: primary
 
 feature_tf_train:

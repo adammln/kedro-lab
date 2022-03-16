@@ -140,8 +140,8 @@ def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     dataframe = _convert_labelled_data_tree_to_dataframe(tree)
     return dataframe
 
-def extract_and_convert_testing_data(xml_content: str) -> pd.DataFrame:
-    """ Extract content of XML file of testing data 
+def extract_and_convert_xml_data(xml_content: str) -> pd.DataFrame:
+    """ Extract content of XML file 
         and convert to pandas Dataframe
     
     Args:
@@ -216,9 +216,36 @@ def preprocess_gold_standard(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe["ambience"] = dataframe["ambience"].apply(_map_label_helper)
     return dataframe
 
-def create_testing_data_table(
-        reviews: pd.DataFrame,
-        labels: pd.DataFrame,
+def create_unlabelled_data_table(
+        unlabelled_data: pd.DataFrame,
+        testing_data: pd.DataFrame,
+        gold_standard: pd.DataFrame,
+    ) -> pd.DataFrame:
+    """ Create unlabelled_data_table 
+        by merging testing_data and unlabelled_data
+        where testing_data rows don't have gold_standard labels
+
+        Args:
+            unlabelled_data: unlabelled customer reviews of restaurants
+                        extracted from unlabelled_data.xml
+            testing_data: unlabelled customer reviews of restaurants 
+                        extracted from testing_data.xml
+            gold_standard: gold_standard labels, for a subset of testing_data (named t1)
+        
+        Returns:
+            a merged dataframe with rows comes from all unlabelled_data 
+            and testing_data excludes t1
+    """
+    unlabelled_testing_data = testing_data.loc[
+        ~testing_data.review_id.isin(gold_standard.review_id)
+    ]
+    merged_unlabelled_data = pd.concat([unlabelled_data,unlabelled_testing_data])
+    merged_unlabelled_data = merged_unlabelled_data.drop(columns=['review_id'])
+    return merged_unlabelled_data
+
+def create_gold_standard_table(
+        testing_data: pd.DataFrame,
+        gold_standard: pd.DataFrame,
     ) -> pd.DataFrame:
     """ Join testing_data and gold_standard (as labels of testing_data)
         based on review_id
@@ -231,13 +258,28 @@ def create_testing_data_table(
     Return:
         complete testing data table containing review text and it's label
     """
-    labelled_testing_data = reviews.merge(
-        labels, 
+    merged = testing_data.merge(
+        gold_standard, 
         left_on="review_id", 
         right_on="review_id",
     )
-    testing_data_table = labelled_testing_data.dropna()
-    return testing_data_table
+    merged = merged.dropna()
+    merged = merged.drop(columns=['review_id'])
+    return merged
+
+def create_labelled_data_table(
+        labelled_data: pd.DataFrame,
+    ) -> pd.DataFrame:
+    """ Create labelled_data_table by dropping review_id column
+
+    Args:
+        labelled_data: preprocessed labelled data
+    
+    Return:
+        labelled data table
+    """
+    labelled_data = labelled_data.drop(columns=['review_id'])
+    return labelled_data
 
 def _n_gram_fit_transform(texts: pd.Series):
     """ Train Vectorizer & Extract N-Gram features on training data
