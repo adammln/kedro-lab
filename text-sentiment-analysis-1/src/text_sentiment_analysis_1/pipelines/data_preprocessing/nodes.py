@@ -229,9 +229,9 @@ def create_unlabelled_data_table(
     merged_unlabelled_data = pd.concat([unlabelled_data,unlabelled_testing_data])
     return merged_unlabelled_data
 
-def create_testing_data_table(
-        reviews: pd.DataFrame,
-        labels: pd.DataFrame,
+def create_gold_standard_table(
+        testing_data: pd.DataFrame,
+        gold_standard: pd.DataFrame,
     ) -> pd.DataFrame:
     """ Join testing_data and gold_standard (as labels of testing_data)
         based on review_id
@@ -244,13 +244,13 @@ def create_testing_data_table(
     Return:
         complete testing data table containing review text and it's label
     """
-    labelled_testing_data = reviews.merge(
-        labels, 
+    merged = testing_data.merge(
+        gold_standard, 
         left_on="review_id", 
         right_on="review_id",
     )
-    testing_data_table = labelled_testing_data.dropna()
-    return testing_data_table
+    merged = merged.dropna()
+    return merged
 
 def _n_gram_fit_transform(texts: pd.Series):
     """ Train Vectorizer & Extract N-Gram features on training data
