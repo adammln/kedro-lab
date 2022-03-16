@@ -45,12 +45,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="preprocessed_unlabelled_data",
                 name="preprocess_unlabelled_data_node",
             ),
-            # node(
-            #     func=preprocess_gold_standard,
-            #     inputs="gold_standard",
-            #     outputs="testing_data_labels",
-            #     name="preprocess_gold_standard_node",
-            # ),
+            node(
+                func=preprocess_gold_standard,
+                inputs="gold_standard",
+                outputs="gold_standard_labels",
+                name="preprocess_gold_standard_node",
+            ),
             # node(
             #     func=create_testing_data_table,
             #     inputs=["preprocessed_testing_data", "testing_data_labels"],
@@ -79,7 +79,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             "labelled_data",
             "testing_data",
             "stopwords_custom",
-            # "gold_standard"
+            "gold_standard"
         ],
         outputs=[
             # "preprocessed_labelled_data",
