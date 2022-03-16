@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 import nltk
 import numpy as np
 import pandas as pd
-import re, string
+import re, string, uuid
 import xml.etree.ElementTree as ET
 
 nltk.download('stopwords')
@@ -240,7 +240,8 @@ def create_unlabelled_data_table(
         ~testing_data.review_id.isin(gold_standard.review_id)
     ]
     merged_unlabelled_data = pd.concat([unlabelled_data,unlabelled_testing_data])
-    merged_unlabelled_data = merged_unlabelled_data.drop(columns=['review_id'])
+    merged_unlabelled_data["review_id"] = merged_unlabelled_data["review_id"].astype(str)
+    merged_unlabelled_data["review_id"] = [str(uuid.uuid4()) for _ in range(len(merged_unlabelled_data.index))]
     return merged_unlabelled_data
 
 def create_gold_standard_table(
@@ -264,7 +265,8 @@ def create_gold_standard_table(
         right_on="review_id",
     )
     merged = merged.dropna()
-    merged = merged.drop(columns=['review_id'])
+    merged["review_id"] = merged["review_id"].astype(str)
+    merged["review_id"] = [str(uuid.uuid4()) for _ in range(len(merged.index))]
     return merged
 
 def create_labelled_data_table(
@@ -278,7 +280,8 @@ def create_labelled_data_table(
     Return:
         labelled data table
     """
-    labelled_data = labelled_data.drop(columns=['review_id'])
+    labelled_data["review_id"] = labelled_data["review_id"].astype(str)
+    labelled_data['review_id'] = [str(uuid.uuid4()) for _ in range(len(labelled_data.index))]
     return labelled_data
 
 def _n_gram_fit_transform(texts: pd.Series):
