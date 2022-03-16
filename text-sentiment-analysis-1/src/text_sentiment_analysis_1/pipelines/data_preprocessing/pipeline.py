@@ -21,6 +21,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="typed_testing_data",
                 name="extract_and_convert_testing_data_node",
             ),
+            node(
+                func=extract_and_convert_testing_data,
+                inputs="unlabelled_data",
+                outputs="typed_unlabelled_data",
+                name="extract_and_convert_unlabelled_data_node",
+            ),
             # node(
             #     func=preprocess_text_column,
             #     inputs=["converted_labelled_data", "stopwords_custom"],
@@ -63,7 +69,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
         namespace="data_preprocessing", 
         inputs=[
-            # "unlabelled_data",
+            "unlabelled_data",
             "labelled_data",
             "testing_data",
             # "stopwords_custom",
@@ -71,7 +77,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         ],
         outputs=[
             # "preprocessed_labelled_data",
-            # "typed_unlabelled_data",
+            "typed_unlabelled_data",
             "typed_labelled_data",
             "typed_testing_data",
             # "testing_data_table",
