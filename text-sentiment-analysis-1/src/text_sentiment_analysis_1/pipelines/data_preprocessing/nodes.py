@@ -144,17 +144,18 @@ def _convert_polarity_level_to_binary(label_column: pd.Series) -> pd.Series:
 def _count_labels(df: pd.DataFrame, columns_of_aspect_labels_per_person:list, labels: list, aspect_name:str) -> pd.DataFrame:
     df_t = df[columns_of_aspect_labels_per_person].T
     label_counts = pd.DataFrame(columns=labels)
+    
     for subject in df_t:
         c = df_t[subject].value_counts()
         label_counts = label_counts.append(dict(c), True)
     label_counts = label_counts.fillna(0)
     new_column_names = {}
+    
     for label in labels:
         new_column_names[label] = aspect_name + "_" + label
     label_counts.rename(columns=new_column_names, inplace=True)
-    for column in label_counts.columns:
-        df[column] = label_counts[column]
-    df = df.join(label_counts)
+    
+    df = df.join(label_counts, how='left')
     return df
 
 def _transform_aspect_label_columns_to_label_counts(df: pd.DataFrame) -> pd.DataFrame:
@@ -205,6 +206,7 @@ def extract_and_convert_xml_data(xml_content: str) -> pd.DataFrame:
     tree = _extract_xml_tree_from_text(xml_content)
     dataframe = _convert_testing_data_tree_to_dataframe(tree)
     return dataframe
+
 def preprocess_text_column(
         dataframe: pd.DataFrame,
         stopwords_custom: str,
