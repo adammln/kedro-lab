@@ -80,6 +80,15 @@ def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFra
     dataframe = pd.DataFrame(rows, columns = columns)
     return dataframe
 
+def _fix_labels_typos(df: pd.DataFrame) -> pd.DataFrame:
+    df['price_0'] = df['price_0'].str.replace('positivetive', 'positive')
+    df['food_1'] = df['food_1'].str.replace('negtive', 'negative')
+    df['service_1'] = df['service_1'].str.replace('neative', 'negative')
+    df['ambience_1'] = df['ambience_1'].str.strip()
+    df['ambience_0'] = df['ambience_0'].str.replace('posituve', 'positive')
+    return df
+
+
 def _normalize_text(x: str) -> str:
     x = x.strip()
     x = x.lower()
@@ -196,7 +205,6 @@ def extract_and_convert_xml_data(xml_content: str) -> pd.DataFrame:
     tree = _extract_xml_tree_from_text(xml_content)
     dataframe = _convert_testing_data_tree_to_dataframe(tree)
     return dataframe
-
 def preprocess_text_column(
         dataframe: pd.DataFrame,
         stopwords_custom: str,
@@ -324,6 +332,7 @@ def create_labelled_data_table(
     """
     labelled_data["review_id"] = labelled_data["review_id"].astype(str)
     labelled_data["review_id"] = [str(uuid.uuid4()) for _ in range(len(labelled_data.index))]
+    labelled_data = _fix_labels_typos(labelled_data)
     labelled_data = _transform_aspect_label_columns_to_label_counts(labelled_data)
     return labelled_data
 
