@@ -124,6 +124,46 @@ def _remove_custom_stopwords_in_text_column(
 def _map_label(x: str, mapper: dict) -> str:
     return mapper[x]
 
+def _convert_aspect_level_to_binary(label_column: pd.Series) -> pd.Series:
+    label_column = label_column.apply(lambda x: x != "unknown")
+    return label_column
+
+def _convert_polarity_level_to_binary(label_column: pd.Series) -> pd.Series:
+    label_column = label_column.apply(lambda x: x == "positive")
+    return label_column
+
+def _count_labels(df: pd.DataFrame, columns_of_aspect_labels_per_person:list, labels: list, aspect_name:str) -> pd.DataFrame:
+    df_t = df[columns_of_aspect_labels_per_person].T
+    label_counts = pd.DataFrame(columns=labels)
+    for subject in df_t:
+        c = df_t[subject].value_counts()
+        new_df = new_df.append(dict(c), True)
+    label_counts = label_counts.fillna(0)
+    new_column_names = {}
+    for label in labels:
+        new_column_names[label] = aspect_name + "_" + label
+    label_counts = label_counts.rename(columns=new_column_names, inplace=True)
+    df = df.join(label_counts)
+    return df
+
+def _transform_aspect_label_columns_to_label_counts(df: pd.DataFrame) -> pd.DataFrame:
+    labels = ['unknown', 'positive', 'negative']
+    aspects = ['food', 'price', 'ambience', 'service']
+    rater_ids = [0, 1]
+    for aspect in aspects:
+        aspect_labels_per_person = []
+        for rater_id in rater_ids:
+            aspect_labels_per_person.append(aspect+"_"+str(rater_id))
+            # labelled_data[aspect+"_presence_"+str(rater_id)] = _convert_aspect_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
+            # labelled_data[aspect+"_positive_"+str(rater_id)] = _convert_polarity_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
+        labelled_data = _count_labels(
+            df=labelled_data,
+            columns_of_aspect_labels_per_person=aspect_labels_per_person,
+            labels= labels,
+            aspect_name=aspect
+        )
+    return labelled_data
+
 def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     """ Extract content of XML file of labelled data 
         and convert to pandas Dataframe
@@ -281,7 +321,8 @@ def create_labelled_data_table(
         labelled data table
     """
     labelled_data["review_id"] = labelled_data["review_id"].astype(str)
-    labelled_data['review_id'] = [str(uuid.uuid4()) for _ in range(len(labelled_data.index))]
+    labelled_data["review_id"] = [str(uuid.uuid4()) for _ in range(len(labelled_data.index))]
+    labelled_data = _transform_aspect_label_columns_to_label_counts(labelled_data)
     return labelled_data
 
 def _n_gram_fit_transform(texts: pd.Series):
