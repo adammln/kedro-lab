@@ -137,12 +137,14 @@ def _count_labels(df: pd.DataFrame, columns_of_aspect_labels_per_person:list, la
     label_counts = pd.DataFrame(columns=labels)
     for subject in df_t:
         c = df_t[subject].value_counts()
-        new_df = new_df.append(dict(c), True)
+        label_counts = label_counts.append(dict(c), True)
     label_counts = label_counts.fillna(0)
     new_column_names = {}
     for label in labels:
         new_column_names[label] = aspect_name + "_" + label
-    label_counts = label_counts.rename(columns=new_column_names, inplace=True)
+    label_counts.rename(columns=new_column_names, inplace=True)
+    for column in label_counts.columns:
+        df[column] = label_counts[column]
     df = df.join(label_counts)
     return df
 
@@ -156,13 +158,13 @@ def _transform_aspect_label_columns_to_label_counts(df: pd.DataFrame) -> pd.Data
             aspect_labels_per_person.append(aspect+"_"+str(rater_id))
             # labelled_data[aspect+"_presence_"+str(rater_id)] = _convert_aspect_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
             # labelled_data[aspect+"_positive_"+str(rater_id)] = _convert_polarity_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
-        labelled_data = _count_labels(
-            df=labelled_data,
+        df = _count_labels(
+            df=df,
             columns_of_aspect_labels_per_person=aspect_labels_per_person,
             labels= labels,
             aspect_name=aspect
         )
-    return labelled_data
+    return df
 
 def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     """ Extract content of XML file of labelled data 
