@@ -12,19 +12,16 @@ labelled_data:
   type: text.TextDataSet
   filepath: data/01_raw/labelled_data.xml
   layer: raw
-  # file_format: xml
 
 testing_data:
   type: text.TextDataSet
   filepath: data/01_raw/testing_data.xml
   layer: raw
-  # file_format: xml
 
 unlabelled_data:
   type: text.TextDataSet
   filepath: data/01_raw/unlabelled_data.xml
   layer: raw
-  # file_format: xml
 
 typed_unlabelled_data:
   type: pandas.ParquetDataSet
@@ -59,6 +56,16 @@ unlabelled_data_table:
 gold_standard_table:
   type: pandas.ParquetDataSet
   filepath: data/03_primary/gold_standard_table.pq
+  layer: primary
+
+agreed_aspect_table:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/agreed_aspect_table.pq
+  layer: primary
+
+agreed_polarity_table:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/agreed_polarity_table.pq
   layer: primary
 
 feature_tf_train:

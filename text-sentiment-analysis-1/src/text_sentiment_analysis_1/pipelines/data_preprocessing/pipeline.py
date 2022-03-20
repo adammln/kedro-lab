@@ -5,14 +5,16 @@ generated using Kedro 0.17.7
 
 from kedro.pipeline import Pipeline, node, pipeline
 from .nodes import (
+    create_agreed_aspect_level_table,
+    create_agreed_polarity_level_table,
+    create_gold_standard_table, 
+    create_labelled_data_table,
+    create_unlabelled_data_table,
     extract_and_convert_labelled_data, 
     extract_and_convert_xml_data, 
-    preprocess_text_column, 
-    preprocess_gold_standard, 
-    create_gold_standard_table, 
-    create_unlabelled_data_table,
-    create_labelled_data_table,
     extract_train_test_features_from_texts, 
+    preprocess_gold_standard, 
+    preprocess_text_column, 
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -81,7 +83,19 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs="preprocessed_labelled_data",
                 outputs="labelled_data_table",
                 name="create_labelled_data_table_node",
-            )
+            ),
+            node(
+                func=create_agreed_aspect_level_table,
+                inputs="labelled_data_table",
+                outputs="agreed_aspect_table",
+                name="create_agreed_aspect_level_table_node",
+            ),
+            node(
+                func=create_agreed_polarity_level_table,
+                inputs="labelled_data_table",
+                outputs="agreed_polarity_table",
+                name="create_agreed_polarity_level_table_node",
+            ),
             # node(
             #     func=extract_train_test_features_from_texts,
             #     inputs=[
@@ -113,6 +127,8 @@ def create_pipeline(**kwargs) -> Pipeline:
             "typed_testing_data",
             "unlabelled_data_table",
             "gold_standard_table",
+            "agreed_aspect_table",
+            "agreed_polarity_table"
             # "converted_testing_data",
             # "feature_tf_train",
             # "feature_tf_idf_train",

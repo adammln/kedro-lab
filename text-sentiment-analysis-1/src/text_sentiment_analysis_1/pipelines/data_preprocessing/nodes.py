@@ -5,6 +5,7 @@ generated using Kedro 0.17.7
 from lxml import etree
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from statsmodels.stats import inter_rater as ir
 
 import nltk
 import numpy as np
@@ -14,6 +15,7 @@ import xml.etree.ElementTree as ET
 
 nltk.download('stopwords')
 _stopwords_dirty = stopwords.words("english") + stopwords.words("indonesian")
+AGREEMENT_MIDDLE_BOUND_THRESHOLD = 0.2
 
 def _remove_xml_special_character_on_labelled_data(content: str) -> str:
     lines = content.split("\n")
@@ -80,6 +82,14 @@ def _convert_labelled_data_tree_to_dataframe(tree: ET.ElementTree) -> pd.DataFra
     dataframe = pd.DataFrame(rows, columns = columns)
     return dataframe
 
+def _fix_labels_typos(df: pd.DataFrame) -> pd.DataFrame:
+    df['price_0'] = df['price_0'].str.replace('positivetive', 'positive')
+    df['food_1'] = df['food_1'].str.replace('negtive', 'negative')
+    df['service_1'] = df['service_1'].str.replace('neative', 'negative')
+    df['ambience_1'] = df['ambience_1'].str.strip()
+    df['ambience_0'] = df['ambience_0'].str.replace('posituve', 'positive')
+    return df
+
 def _normalize_text(x: str) -> str:
     x = x.strip()
     x = x.lower()
@@ -123,6 +133,68 @@ def _remove_custom_stopwords_in_text_column(
 
 def _map_label(x: str, mapper: dict) -> str:
     return mapper[x]
+
+def _convert_aspect_level_to_binary(label_column: pd.Series) -> pd.Series:
+    label_column = label_column.apply(lambda x: x != "unknown")
+    return label_column
+
+def _convert_polarity_level_to_binary(label_column: pd.Series) -> pd.Series:
+    label_column = label_column.apply(lambda x: x == "positive")
+    return label_column
+
+def _aggregate_raters(
+        df: pd.DataFrame, 
+        columns_of_aspect_labels_per_person:list, 
+        # labels: list, 
+        aspect_name:str
+    ) -> pd.DataFrame:
+    aggregated = ir.aggregate_raters(df[columns_of_aspect_labels_per_person])
+    label_counts = aggregated[0]
+    labels = aggregated[1]
+    renamed_labels = [aspect_name+'_'+label for label in labels]
+    df = df.join(pd.DataFrame(label_counts, columns=renamed_labels), how='left')
+    return df
+
+def _transform_aspect_label_columns_to_label_counts(df: pd.DataFrame) -> pd.DataFrame:
+    labels = ['unknown', 'positive', 'negative']
+    aspects = ['food', 'price', 'ambience', 'service']
+    rater_ids = [0, 1]
+    for aspect in aspects:
+        aspect_labels_per_person = []
+        for rater_id in rater_ids:
+            aspect_labels_per_person.append(aspect+"_"+str(rater_id))
+            # labelled_data[aspect+"_presence_"+str(rater_id)] = _convert_aspect_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
+            # labelled_data[aspect+"_positive_"+str(rater_id)] = _convert_polarity_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
+        
+        df = _aggregate_raters(
+            df=df,
+            columns_of_aspect_labels_per_person=aspect_labels_per_person,
+            # labels= labels,
+            aspect_name=aspect
+        )
+    return df
+
+def _select_agreed_subjects_on_aspect_level(df: pd.DataFrame, aspect:str, threshold:float) -> pd.DataFrame:
+    labels = ['positive', 'negative', 'unknown']
+    raters_count = df.iloc[0][[aspect+'_'+label for label in labels]].sum()
+    mid_upper_bound = (0.5 + threshold)*raters_count
+    mid_lower_bound = (0.5 - threshold)*raters_count
+    agreed = df.loc[(df[aspect+'_unknown'] > mid_upper_bound) | (df[aspect+'_unknown']<mid_lower_bound)]
+    return agreed[['review_id']]
+
+def _select_agreed_subjects_on_polarity_level(df: pd.DataFrame, aspect:str, threshold:float) -> pd.DataFrame:
+    labels = ['positive', 'negative', 'unknown']
+    raters_count = df.iloc[0][[aspect+'_'+label for label in labels]].sum()
+    aspect_mid_lower_bound = (0.5 - threshold)*raters_count
+    polarity_mid_lower_bound = (0.5*0.5 - 0.5*threshold)*raters_count
+    polarity_mid_upper_bound = (0.5*0.5 + 0.5*threshold)*raters_count
+    agreed_polarity_level = df.loc[
+        (df[aspect+'_unknown'] < aspect_mid_lower_bound) &
+        (
+            (df[aspect+'_negative'] > polarity_mid_upper_bound) | (df[aspect+'_negative'] < polarity_mid_lower_bound)
+        )
+    ]
+    return agreed_polarity_level[['review_id']]
 
 def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     """ Extract content of XML file of labelled data 
@@ -281,8 +353,34 @@ def create_labelled_data_table(
         labelled data table
     """
     labelled_data["review_id"] = labelled_data["review_id"].astype(str)
-    labelled_data['review_id'] = [str(uuid.uuid4()) for _ in range(len(labelled_data.index))]
+    labelled_data["review_id"] = [str(uuid.uuid4()) for _ in range(len(labelled_data.index))]
+    labelled_data = _fix_labels_typos(labelled_data)
+    labelled_data = _transform_aspect_label_columns_to_label_counts(labelled_data)
     return labelled_data
+
+def create_agreed_aspect_level_table(df: pd.DataFrame) -> pd.DataFrame:
+    aspects = ['food', 'ambience', 'service', 'price']
+    id_table = pd.DataFrame(columns=aspects)
+    for aspect in aspects:
+        ids = _select_agreed_subjects_on_aspect_level(
+            df=df,
+            aspect=aspect,
+            threshold=AGREEMENT_MIDDLE_BOUND_THRESHOLD
+        )
+        id_table[aspect] = ids['review_id']
+    return id_table
+
+def create_agreed_polarity_level_table(df: pd.DataFrame) -> pd.DataFrame:
+    aspects = ['food', 'ambience', 'service', 'price']
+    id_table = pd.DataFrame(columns=aspects)
+    for aspect in aspects:
+        ids = _select_agreed_subjects_on_polarity_level(
+            df=df,
+            aspect=aspect,
+            threshold=AGREEMENT_MIDDLE_BOUND_THRESHOLD
+        )
+        id_table[aspect] = ids['review_id']
+    return id_table
 
 def _n_gram_fit_transform(texts: pd.Series):
     """ Train Vectorizer & Extract N-Gram features on training data
