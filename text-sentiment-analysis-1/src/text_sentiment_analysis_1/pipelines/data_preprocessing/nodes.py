@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 
 nltk.download('stopwords')
 _stopwords_dirty = stopwords.words("english") + stopwords.words("indonesian")
+AGREEMENT_MIDDLE_BOUND_THRESHOLD = 0.2
 
 def _remove_xml_special_character_on_labelled_data(content: str) -> str:
     lines = content.split("\n")
@@ -172,6 +173,28 @@ def _transform_aspect_label_columns_to_label_counts(df: pd.DataFrame) -> pd.Data
             aspect_name=aspect
         )
     return df
+
+def _select_agreed_subjects_on_aspect_level(df: pd.DataFrame, aspect:str, threshold:float) -> pd.DataFrame:
+    labels = ['positive', 'negative', 'unknown']
+    raters_count = df.iloc[0][[aspect+'_'+label for label in labels]].sum()
+    mid_upper_bound = (0.5 + threshold)*raters_count
+    mid_lower_bound = (0.5 - threshold)*raters_count
+    agreed = df.loc[(df[aspect+'_unknown'] > mid_upper_bound) | (df[aspect+'_unknown']<mid_lower_bound)]
+    return agreed[['review_id']]
+
+def _select_agreed_subjects_on_polarity_level(df: pd.DataFrame, aspect:str, threshold:float) -> pd.DataFrame:
+    labels = ['positive', 'negative', 'unknown']
+    raters_count = df.iloc[0][[aspect+'_'+label for label in labels]].sum()
+    aspect_mid_lower_bound = (0.5 - threshold)*raters_count
+    polarity_mid_lower_bound = (0.5*0.5 - 0.5*threshold)*raters_count
+    polarity_mid_upper_bound = (0.5*0.5 + 0.5*threshold)*raters_count
+    agreed_polarity_level = df.loc[
+        (df[aspect+'_unknown'] < aspect_mid_lower_bound) &
+        (
+            (df[aspect+'_negative'] > mid_upper_bound) | (df[aspect+'_negative'] < mid_lower_bound)
+        )
+    ]
+    return agreed_polarity_level[['review_id']]
 
 def extract_and_convert_labelled_data(xml_content: str) -> pd.DataFrame:
     """ Extract content of XML file of labelled data 
@@ -334,6 +357,30 @@ def create_labelled_data_table(
     labelled_data = _fix_labels_typos(labelled_data)
     labelled_data = _transform_aspect_label_columns_to_label_counts(labelled_data)
     return labelled_data
+
+def create_agreed_aspect_level_table(df: pd.DataFrame) -> pd.DataFrame:
+    aspects = ['food', 'ambience', 'service', 'price']
+    id_table = pd.DataFrame(columns=aspects)
+    for aspect in aspects:
+        ids = _select_agreed_subjects_on_aspect_level(
+            df=df,
+            aspect=aspect,
+            threshold=AGREEMENT_MIDDLE_BOUND_THRESHOLD
+        )
+        id_table[aspect] = ids['review_id']
+    return id_table
+
+def create_agreed_polarity_level_table(df: pd.DataFrame) -> pd.DataFrame:
+    aspects = ['food', 'ambience', 'service', 'price']
+    id_table = pd.DataFrame(columns=aspects)
+    for aspect in aspects:
+        ids = _select_agreed_subjects_on_polarity_level(
+            df=df,
+            aspect=aspect,
+            threshold=AGREEMENT_MIDDLE_BOUND_THRESHOLD
+        )
+        id_table[aspect] = ids['review_id']
+    return id_table
 
 def _n_gram_fit_transform(texts: pd.Series):
     """ Train Vectorizer & Extract N-Gram features on training data
