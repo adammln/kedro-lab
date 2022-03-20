@@ -5,6 +5,7 @@ generated using Kedro 0.17.7
 from lxml import etree
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from statsmodels.stats import inter_rater as ir
 
 import nltk
 import numpy as np
@@ -88,7 +89,6 @@ def _fix_labels_typos(df: pd.DataFrame) -> pd.DataFrame:
     df['ambience_0'] = df['ambience_0'].str.replace('posituve', 'positive')
     return df
 
-
 def _normalize_text(x: str) -> str:
     x = x.strip()
     x = x.lower()
@@ -141,21 +141,17 @@ def _convert_polarity_level_to_binary(label_column: pd.Series) -> pd.Series:
     label_column = label_column.apply(lambda x: x == "positive")
     return label_column
 
-def _count_labels(df: pd.DataFrame, columns_of_aspect_labels_per_person:list, labels: list, aspect_name:str) -> pd.DataFrame:
-    df_t = df[columns_of_aspect_labels_per_person].T
-    label_counts = pd.DataFrame(columns=labels)
-    
-    for subject in df_t:
-        c = df_t[subject].value_counts()
-        label_counts = label_counts.append(dict(c), True)
-    label_counts = label_counts.fillna(0)
-    new_column_names = {}
-    
-    for label in labels:
-        new_column_names[label] = aspect_name + "_" + label
-    label_counts.rename(columns=new_column_names, inplace=True)
-    
-    df = df.join(label_counts, how='left')
+def _aggregate_raters(
+        df: pd.DataFrame, 
+        columns_of_aspect_labels_per_person:list, 
+        # labels: list, 
+        aspect_name:str
+    ) -> pd.DataFrame:
+    aggregated = ir.aggregate_raters(df[columns_of_aspect_labels_per_person])
+    label_counts = aggregated[0]
+    labels = aggregated[1]
+    renamed_labels = [aspect_name+'_'+label for label in labels]
+    df = df.join(pd.DataFrame(label_counts, columns=renamed_labels), how='left')
     return df
 
 def _transform_aspect_label_columns_to_label_counts(df: pd.DataFrame) -> pd.DataFrame:
@@ -168,10 +164,11 @@ def _transform_aspect_label_columns_to_label_counts(df: pd.DataFrame) -> pd.Data
             aspect_labels_per_person.append(aspect+"_"+str(rater_id))
             # labelled_data[aspect+"_presence_"+str(rater_id)] = _convert_aspect_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
             # labelled_data[aspect+"_positive_"+str(rater_id)] = _convert_polarity_level_to_binary(labelled_data[aspect+"_"+str(rater_id)])
-        df = _count_labels(
+        
+        df = _aggregate_raters(
             df=df,
             columns_of_aspect_labels_per_person=aspect_labels_per_person,
-            labels= labels,
+            # labels= labels,
             aspect_name=aspect
         )
     return df
