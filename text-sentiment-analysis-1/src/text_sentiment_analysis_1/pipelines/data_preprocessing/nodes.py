@@ -191,7 +191,7 @@ def _select_agreed_subjects_on_polarity_level(df: pd.DataFrame, aspect:str, thre
     agreed_polarity_level = df.loc[
         (df[aspect+'_unknown'] < aspect_mid_lower_bound) &
         (
-            (df[aspect+'_negative'] > mid_upper_bound) | (df[aspect+'_negative'] < mid_lower_bound)
+            (df[aspect+'_negative'] > polarity_mid_upper_bound) | (df[aspect+'_negative'] < polarity_mid_lower_bound)
         )
     ]
     return agreed_polarity_level[['review_id']]
