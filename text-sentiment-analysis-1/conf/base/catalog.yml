@@ -63,9 +63,9 @@ agreed_aspect_table:
   filepath: data/03_primary/agreed_aspect_table.pq
   layer: primary
 
-agreed_aspect_table:
+agreed_polarity_table:
   type: pandas.ParquetDataSet
-  filepath: data/03_primary/agreed_aspect_table.pq
+  filepath: data/03_primary/agreed_polarity_table.pq
   layer: primary
 
 feature_tf_train:
