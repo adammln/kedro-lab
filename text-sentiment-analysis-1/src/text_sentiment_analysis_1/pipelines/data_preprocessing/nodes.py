@@ -359,6 +359,23 @@ def create_labelled_data_table(
     return labelled_data
 
 def create_agreed_aspect_level_table(df: pd.DataFrame) -> pd.DataFrame:
+    """ Create table containing (UU)IDs of rows from labelled_data_table
+        wich there's no 'uncertainty'/'disagreement' between annotators
+        in the ASPECT LEVEL (determining whether particular aspect of the 
+        restaurant were discussed in a review or not).
+        
+        'disagreement' means the votes between ASPECT-PRESENCE: TRUE or FALSE
+        are around 50:50, specificaly from 30:70 to 70:30 (inclusive).
+    
+    Args:
+        labelled_data: pandas.DataFrame
+        - a labelled_data_table
+
+    Return:
+        id_table: pandas.DataFrame
+        - columns = ['food', 'ambience', 'service', 'price']
+        - values = uuids
+    """
     aspects = ['food', 'ambience', 'service', 'price']
     id_table = pd.DataFrame(columns=aspects)
     for aspect in aspects:
@@ -371,6 +388,24 @@ def create_agreed_aspect_level_table(df: pd.DataFrame) -> pd.DataFrame:
     return id_table
 
 def create_agreed_polarity_level_table(df: pd.DataFrame) -> pd.DataFrame:
+    """ Create table containing (UU)IDs of rows from labelled_data_table
+        wich there's no 'uncertainty'/'disagreement' between annotators
+        in the POLARITY LEVEL (determining whether the reviewed aspect
+        has the majority votes on its sentiment, either negative or 
+        positive).
+        
+        'disagreement' means the votes between POLARITY-POSITIVE: TRUE or FALSE
+        are around 50:50, specificaly from 30:70 to 70:30 (inclusive).
+    
+    Args:
+        labelled_data: pandas.DataFrame
+        - a labelled_data_table
+
+    Return:
+        id_table: pandas.DataFrame
+        - columns = ['food', 'ambience', 'service', 'price']
+        - values = uuids
+    """
     aspects = ['food', 'ambience', 'service', 'price']
     id_table = pd.DataFrame(columns=aspects)
     for aspect in aspects:
