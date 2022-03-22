@@ -185,9 +185,11 @@ def _select_agreed_subjects_on_aspect_level(df: pd.DataFrame, aspect:str, thresh
 def _select_agreed_subjects_on_polarity_level(df: pd.DataFrame, aspect:str, threshold:float) -> pd.DataFrame:
     labels = ['positive', 'negative', 'unknown']
     raters_count = df.iloc[0][[aspect+'_'+label for label in labels]].sum()
-    aspect_mid_lower_bound = (0.5 - threshold)*raters_count
-    polarity_mid_lower_bound = (0.5*0.5 - 0.5*threshold)*raters_count
-    polarity_mid_upper_bound = (0.5*0.5 + 0.5*threshold)*raters_count
+    aspect_mid_lower_bound = (0.5 - threshold)*(0.5*raters_count)
+    total_negative_and_positive = raters_count - aspect_mid_lower_bound
+    polarity_mid_point = 0.5*total_negative_and_positive
+    polarity_mid_lower_bound = polarity_mid_point - (threshold*total_negative_and_positive)
+    polarity_mid_upper_bound = polarity_mid_point + (threshold*total_negative_and_positive)
     agreed_polarity_level = df.loc[
         (df[aspect+'_unknown'] < aspect_mid_lower_bound) &
         (
